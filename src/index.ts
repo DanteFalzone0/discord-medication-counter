@@ -10,7 +10,7 @@ const client = new Client({
   presence: {
     status: 'online',
     activities: [{
-      name: `${prefix}help`,
+      name: "the voices :3",
       type: 'LISTENING'
     }]
   }
@@ -24,7 +24,9 @@ client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
   if (message.content.startsWith(prefix)) {
-    const args = message.content.slice(prefix.length).split(' ');
+    const args = message.content.slice(prefix.length)
+      .split(' ')
+      .map(arg => arg.replace('_', ' '));
     const command = args.shift();
     const drugController = new DrugController();
     drugController.logLevel = "Loquacious";
@@ -41,13 +43,13 @@ client.on('messageCreate', async (message) => {
         else await message.reply('You did not send a message to repeat, cancelling command.');
         break;
 
-      case 'help':
+      case 'help': {
         const embed = helpCommand(message);
         embed.setThumbnail(client.user!.displayAvatarURL());
         await message.channel.send({ embeds: [embed] });
-        break;
+      } break;
 
-      case "add-drug":
+      case "add-drug": {
         // TODO more robust error handling and role-based access control
         const hackers = ["Toucan", "outoftheinferno"];
         if (!hackers.includes(message.author.username)) {
@@ -88,7 +90,18 @@ client.on('messageCreate', async (message) => {
             await message.react("✅");
           }
         }
-        break;
+      } break;
+
+      case "list-drugs": {
+        const drugDict = drugController.getAllDrugDefinitions();
+        let response = "**List of all drug definitions in my dictionary:**";
+        for (const drug of drugDict.drugList) {
+          response += `\nDrug name: ${drug.genericName}, id: \`${drug.drugId}\`\n`
+            + `  Synonyms: ${drug.aliases.join(", ")}\n`
+            + `  Classes: ${drug.drugClass.join(", ")}`;
+        }
+        await message.channel.send(response);
+      } break;
     }
   }
 });

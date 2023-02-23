@@ -86,4 +86,8 @@ export class DrugController {
     }
     fs.writeFileSync(this.drugDictionaryPath, output);
   }
+
+  getAllDrugDefinitions(): DrugDictionary {
+    return JSON.parse(JSON.stringify(this.drugDictionary));
+  }
 };
