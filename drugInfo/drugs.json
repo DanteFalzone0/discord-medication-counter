@@ -1,0 +1,31 @@
+{
+  "drugList": [
+    {
+      "drugId": "qie::AC14E6BEFA",
+      "genericName": "quetiapine",
+      "drugClass": [
+        "sedative",
+        "antipsychotic"
+      ],
+      "aliases": [
+        "quetiapine",
+        "seroquel"
+      ]
+    },
+    {
+      "drugId": "ame::DF2B9EADA7",
+      "genericName": "amphetamine",
+      "drugClass": [
+        "amphetamine",
+        "stimulant"
+      ],
+      "aliases": [
+        "amphetamine",
+        "adderall",
+        "addies",
+        "addy",
+        "speed"
+      ]
+    }
+  ]
+}
