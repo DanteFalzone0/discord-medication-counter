@@ -26,6 +26,23 @@
         "addy",
         "speed"
       ]
+    },
+    {
+      "drugId": "dph::4B7DB8B906",
+      "genericName": "diphenhydramine",
+      "drugClass": [
+        "deliriant",
+        "hallucinogen",
+        "antihistamine",
+        "anticholinergic",
+        "sedative"
+      ],
+      "aliases": [
+        "diphenhydramine",
+        "dph",
+        "benadryl",
+        "bennies"
+      ]
     }
   ]
 }
