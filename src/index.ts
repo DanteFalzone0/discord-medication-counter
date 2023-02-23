@@ -97,8 +97,8 @@ client.on('messageCreate', async (message) => {
         let response = "**List of all drug definitions in my dictionary:**";
         for (const drug of drugDict.drugList) {
           response += `\nDrug name: ${drug.genericName}, id: \`${drug.drugId}\`\n`
-            + `  Synonyms: ${drug.aliases.join(", ")}\n`
-            + `  Classes: ${drug.drugClass.join(", ")}`;
+            + `• Synonyms: ${drug.aliases.join(", ")}\n`
+            + `• Classes: ${drug.drugClass.join(", ")}`;
         }
         await message.channel.send(response);
       } break;
