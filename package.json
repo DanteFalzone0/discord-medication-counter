@@ -1,7 +1,7 @@
 {
-  "name": "discordjs-starter",
-  "version": "1.0.0",
-  "description": "",
+  "name": "benny-bot-7000",
+  "version": "0.0.2",
+  "description": "bot by log and inferno",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "discord.js": "^13.6.0",
+    "fs": "^0.0.1-security",
     "tslib": "^2.3.1",
     "typescript": "^4.6.2"
   },

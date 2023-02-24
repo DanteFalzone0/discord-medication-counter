@@ -16,6 +16,10 @@ const commands: { [name: string]: { aliases?: string[]; description: string; for
     aliases: ['repeat'],
     description: 'Repeats whatever is said.',
     format: 'say <message>'
+  },
+  "new-counter": {
+    description: "Creates and registers a new counter for you.",
+    format: "new-counter [name]"
   }
 }
 

@@ -2,6 +2,7 @@ import { Client } from 'discord.js';
 import config from './config';
 import helpCommand from './commands';
 import { DrugController } from './DrugController';
+import { RegistryController } from './RegistryController';
 
 const { intents, prefix, token } = config;
 
@@ -28,8 +29,12 @@ client.on('messageCreate', async (message) => {
       .split(' ')
       .map(arg => arg.replace('_', ' '));
     const command = args.shift();
-    const drugController = new DrugController();
+
+    const hackers = ["Toucan", "outoftheinferno"];
+    let drugController = new DrugController();
     drugController.logLevel = "Loquacious";
+    let userRegistryController = new RegistryController();
+    userRegistryController.logLevel = "Loquacious";
 
     switch (command) {
       case 'ping':
@@ -51,7 +56,6 @@ client.on('messageCreate', async (message) => {
 
       case "add-drug": {
         // TODO more robust error handling and role-based access control
-        const hackers = ["Toucan", "outoftheinferno"];
         if (!hackers.includes(message.author.username)) {
           await message.channel.send("only log and inferno can use that command right now");
         }
@@ -85,7 +89,7 @@ client.on('messageCreate', async (message) => {
           );
           if (result === "Exists Already") {
             await message.channel.send("That drug is in the dictionary already");
-          } else {
+          } else if (result === "Success") {
             drugController.saveChanges();
             await message.react("✅");
           }
@@ -102,8 +106,60 @@ client.on('messageCreate', async (message) => {
         }
         await message.channel.send(response);
       } break;
+
+      case "new-counter": {
+        const counterName: string | null = args.at(0) ?? null;
+        await userRegistryController.registerNewUser(
+          message.author.id,
+          counterName ?? message.author.username,
+          message
+        ).then(result => {
+          switch (result) {
+            case "Success":
+              userRegistryController.saveChanges();
+              message.react("✅");
+              break;
+            case "Already registered":
+              message.reply("You already have a registered counter :3");
+              break;
+            case "Failed to set category":
+              message.reply("I couldn't put the channel in the counter category. Ping Log or inferno");
+              break;
+            case "Failed to create new channel":
+              message.reply("I couldn't create the new channel. Ping Log or inferno.");
+              break;
+            default:
+              message.channel.send(
+                `Uhhh... shit. Ping Log or Inferno, something's wrong idk, it says "${result}"`
+              );
+              break;
+          }
+        });
+      } break;
     }
   }
 });
+
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
+  const drugController = new DrugController();
+  drugController.logLevel = "Loquacious";
+  const drugDict = drugController.getAllDrugDefinitions();
+  for (const item of drugDict.drugList) {
+    if (message.content.includes(item.genericName)) {
+      console.log(item.drugId);
+    }
+    else {
+      for (const alias of item.aliases) {
+        if (message.content.includes(alias)) {
+          console.log(JSON.stringify(new Date()))
+          console.log(item.drugId);
+        }
+      }
+    }
+
+  }
+});
+
 
 client.login(token);
