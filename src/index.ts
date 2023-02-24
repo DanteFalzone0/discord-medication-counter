@@ -116,8 +116,9 @@ client.on('messageCreate', async (message) => {
         ).then(result => {
           switch (result) {
             case "Success":
-              userRegistryController.saveChanges();
-              message.react("✅");
+              userRegistryController.saveChanges().then(() => {
+                message.react("✅");
+              });
               break;
             case "Already registered":
               message.reply("You already have a registered counter :3");

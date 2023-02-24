@@ -17,7 +17,6 @@
     "noEmitHelpers": true,
     "outDir": "dist",
     "preserveConstEnums": true,
-    "pretty": true,
     "rootDir": "src",
     "removeComments": false,
     "resolveJsonModule": true,

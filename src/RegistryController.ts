@@ -13,6 +13,12 @@ interface UserRegistry {
   registeredUsers: UserRegistryEntry[]
 };
 
+type RegistryActionResult =
+  "Success"
+  | "Already registered"
+  | "Failed to set category"
+  | "Failed to create new channel";
+
 export class RegistryController {
   readonly userRegistryPath = "/home/runner/benny-bot/drugInfo/userRegistry.json";
   private registry: UserRegistry;
@@ -38,33 +44,26 @@ export class RegistryController {
     }
   }
 
-  async registerNewUser(
+  registerNewUser(
     userId: Snowflake,
     counterName: string,
     originalMessage: Message
-  ): Promise<
-    "Success"
-    | "Already registered"
-    | "Failed to set category"
-    | "Failed to create new channel"
-    | string
-  > {
+  ): Promise<RegistryActionResult> {
     if (this.registry.registeredUsers.some(user => user.userId === userId)) {
       return Promise.resolve("Already registered");
     } else {
-      try {
-        const newChannel = await originalMessage.guild!.channels.create(`${counterName}-counter`, {
-          type: ChannelTypes.GUILD_TEXT
-        });
+      // The IDE might suggest that you convert these to async. Don't do it.
+      return originalMessage.guild!.channels.create(`${counterName}-counter`, {
+        type: ChannelTypes.GUILD_TEXT
+      }).then(newChannel => {
         if (this.logLevel === "Loquacious") {
           console.log(`Created new channel: ${newChannel.id}`);
         }
-        try {
-          const channel_1 = await newChannel.setParent(this.counterCategory);
+        return newChannel.setParent(this.counterCategory).then(channel => {
           this.registry.registeredUsers.push({
             userId,
             registrationDate: new Date(),
-            counterChannelId: channel_1.id
+            counterChannelId: channel.id
           });
           if (this.logLevel === "Verbose") {
             console.log(`Added user to registry, user id: ${userId}`);
@@ -72,12 +71,12 @@ export class RegistryController {
             console.log(`Updated registry: ${JSON.stringify(this.registry, null, 2)}`);
           }
           return "Success";
-        } catch (e) {
+        }).catch(() => {
           return "Failed to set category";
-        }
-      } catch (e) {
+        });
+      }).catch(() => {
         return "Failed to create new channel";
-      }
+      }) as Promise<RegistryActionResult>;
     }
   }
 
