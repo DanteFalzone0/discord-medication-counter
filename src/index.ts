@@ -3,6 +3,7 @@ import config from './config';
 import helpCommand from './commands';
 import { DrugController } from './DrugController';
 import { RegistryController } from './RegistryController';
+import { DrugId } from './Drug';
 
 const { intents, prefix, token } = config;
 
@@ -24,28 +25,22 @@ client.on('ready', () => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
+  const hackers = ["Toucan", "outoftheinferno"];
+  let drugController = new DrugController();
+  drugController.logLevel = "Loquacious";
+  let userRegistryController = new RegistryController();
+  userRegistryController.logLevel = "Loquacious";
+
   if (message.content.startsWith(prefix)) {
     const args = message.content.slice(prefix.length)
       .split(' ')
       .map(arg => arg.replace('_', ' '));
     const command = args.shift();
 
-    const hackers = ["Toucan", "outoftheinferno"];
-    let drugController = new DrugController();
-    drugController.logLevel = "Loquacious";
-    let userRegistryController = new RegistryController();
-    userRegistryController.logLevel = "Loquacious";
-
     switch (command) {
       case 'ping':
         const msg = await message.reply('Pinging...');
         await msg.edit(`Pong! The round trip took ${Date.now() - msg.createdTimestamp}ms.`);
-        break;
-
-      case 'say':
-      case 'repeat':
-        if (args.length > 0) await message.channel.send(args.join(' '));
-        else await message.reply('You did not send a message to repeat, cancelling command.');
         break;
 
       case 'help': {
@@ -58,6 +53,7 @@ client.on('messageCreate', async (message) => {
         // TODO more robust error handling and role-based access control
         if (!hackers.includes(message.author.username)) {
           await message.channel.send("only log and inferno can use that command right now");
+          return;
         }
         const genericName = args.at(0);
         const aliasListIndex = args.indexOf("%aliases");
@@ -107,6 +103,68 @@ client.on('messageCreate', async (message) => {
         await message.channel.send(response);
       } break;
 
+      case "get-drugid": {
+        const drugName = args.at(0)?.toLowerCase();
+        if (drugName === undefined) {
+          await message.reply("The syntax is: `!get-drugid <name of the drug>`.");
+        } else {
+          const drugId = drugController.getDrugIdFromAlias(drugName);
+          if (drugId === null) {
+            await message.reply(`I don't have any such drug as "${drugName}" in my dictionary.`);
+          } else {
+            await message.reply(`The drugId for ${drugName} is \`${drugId}\`.`);
+          }
+        }
+      } break;
+
+      case "add-drug-class": {
+        if (!hackers.includes(message.author.username)) {
+          await message.channel.send("only log and inferno can use that command right now");
+          return;
+        }
+        const drugId = args.at(0) as DrugId | undefined;
+        if (drugId === undefined) {
+          await message.reply("Specify a drugId. Use `!get-drugid` if you don't know the drugId.");
+        } else {
+          const drugClass = args.at(1);
+          if (drugClass === undefined) {
+            await message.reply("Specify the drug class you want to add the drug to.");
+          } else {
+            const result = drugController.addDrugIdToClass(drugId, drugClass);
+            if (result === "Success") {
+              drugController.saveChanges();
+              await message.react("✅");
+            } else {
+              await message.reply(`Error: ${result}`); 
+            }
+          }
+        }
+      } break;
+
+      case "rm-drug-class": {
+        if (!hackers.includes(message.author.username)) {
+          await message.channel.send("only log and inferno can use that command right now");
+          return;
+        }
+        const drugId = args.at(0) as DrugId | undefined;
+        if (drugId === undefined) {
+          await message.reply("Specify a drugId. Use `!get-drugid` if you don't know the drugId.");
+        } else {
+          const drugClass = args.at(1);
+          if (drugClass === undefined) {
+            await message.reply("Specify the drug class you want to remove the drug from.");
+          } else {
+            const result = drugController.removeDrugIdFromClass(drugId, drugClass);
+            if (result === "Success") {
+              drugController.saveChanges();
+              await message.react("✅");
+            } else {
+              await message.reply(`Error: ${result}`); 
+            }
+          }
+        }
+      } break;
+
       case "new-counter": {
         const counterName: string | null = args.at(0) ?? null;
         await userRegistryController.registerNewUser(
@@ -138,29 +196,18 @@ client.on('messageCreate', async (message) => {
         });
       } break;
     }
-  }
-});
-
-client.on('messageCreate', async (message) => {
-  if (message.author.bot) return;
-  const drugController = new DrugController();
-  drugController.logLevel = "Loquacious";
-  const drugDict = drugController.getAllDrugDefinitions();
-  for (const item of drugDict.drugList) {
-    if (message.content.includes(item.genericName)) {
-      console.log(item.drugId);
-    }
-    else {
-      for (const alias of item.aliases) {
-        if (message.content.includes(alias)) {
-          console.log(JSON.stringify(new Date()))
-          console.log(item.drugId);
+  } else {
+    if (drugController.recognizesDrugAlias(message.content)) {
+      const drugIdList = drugController.getMentionedDrugs(message.content);
+      console.log(`From message saying "${message.content}", these drugs were recognized:`);
+      for (const drugId of drugIdList) {
+        const drugGenericName = drugController.getGenericName(drugId);
+        if (drugGenericName !== null) {
+          console.log(`\t${drugGenericName}`);
         }
       }
     }
-
   }
 });
-
 
 client.login(token);

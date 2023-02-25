@@ -1,3 +1,6 @@
+# private user data
+drugInfo/
+
 # Logs
 logs
 *.log

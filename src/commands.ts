@@ -12,14 +12,17 @@ const commands: { [name: string]: { aliases?: string[]; description: string; for
     description: 'Checks connectivity with discord\'s servers.',
     format: 'ping'
   },
-  'say': {
-    aliases: ['repeat'],
-    description: 'Repeats whatever is said.',
-    format: 'say <message>'
-  },
   "new-counter": {
     description: "Creates and registers a new counter for you.",
     format: "new-counter [name]"
+  },
+  "list-drugs": {
+    description: "Lists all the drugs that are saved in my dictionary.",
+    format: "list-drugs"
+  },
+  "get-drugid": {
+    description: "Drugs are stored in my dictionary with a `drugId`. Use this command to find a drug's id.",
+    format: "get-drugid <name of the drug>"
   }
 }
 

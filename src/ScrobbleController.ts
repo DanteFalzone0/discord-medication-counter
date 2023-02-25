@@ -8,7 +8,7 @@ export class ScrobbleController {
   private userData: UserData;
   private registryController: RegistryController;
   constructor(registryController: RegistryController) {
-    const userFileContents = fs.readFileSync(this.userDictionaryPath, "ascii");
+    const userFileContents = fs.readFileSync(this.userDictionaryPath, "utf-8");
     this.userData = JSON.parse(userFileContents);
     this.registryController = registryController;
   }
@@ -19,8 +19,13 @@ export class ScrobbleController {
     if (!this.registryController.isUserRegistered(discordUserId)) {
       return "Unknown Discord User Id";
     } else {
-      // TODO implement :3
+
       return "Success";
     }
+  }
+
+  parseScrobbleFromMessage(messageText: string): Scrobble | null {
+    
+    return null;
   }
 };
