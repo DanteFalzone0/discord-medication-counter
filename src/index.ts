@@ -34,7 +34,7 @@ client.on('messageCreate', async (message) => {
   if (message.content.startsWith(prefix)) {
     const args = message.content.slice(prefix.length)
       .split(' ')
-      .map(arg => arg.replace('_', ' '));
+      .map(arg => arg.replaceAll('_', ' '));
     const command = args.shift();
 
     switch (command) {
@@ -135,7 +135,7 @@ client.on('messageCreate', async (message) => {
               drugController.saveChanges();
               await message.react("✅");
             } else {
-              await message.reply(`Error: ${result}`); 
+              await message.reply(`Error: ${result}`);
             }
           }
         }
@@ -159,7 +159,7 @@ client.on('messageCreate', async (message) => {
               drugController.saveChanges();
               await message.react("✅");
             } else {
-              await message.reply(`Error: ${result}`); 
+              await message.reply(`Error: ${result}`);
             }
           }
         }
